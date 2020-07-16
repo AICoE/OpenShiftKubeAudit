@@ -1,0 +1,19 @@
+# INI syntax, because it's easier to parse
+[Default]
+# The name/title of the issue, eg: "Pod Security Policies in manifests"
+name=""
+# Python-compatible regex to search for. The script automatically ignores
+# commented lines
+regex=""
+# Severity to help the user prioritize fixes
+severity=""
+# Message to output to the user, usually a resolution or more information
+message=""
+
+# If regex is left blank (regex = ""), this section can be used to construct
+# a proper regex for the files. Each regex is searched for in the order
+# they appear and will automatically ignore comments. Any number of regexes
+# can be added this way
+[regexes]
+regex1 = ""
+regex2 = ""
