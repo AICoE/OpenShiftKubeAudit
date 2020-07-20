@@ -9,15 +9,19 @@ import re
 import glob
 import argparse
 import configparser
+import packaging.version
 ```
 
 Usage:
 ```
-usage: audit.py [-h] target
+usage: audit.py [-h] [-v VERSION] target
 
 positional arguments:
-  target      Target directory containing files to audit
+  target                Target directory containing files to audit
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help            show this help message and exit
+  -v VERSION, --version VERSION
+                        Target version of OpenShift to check against
+
 ```

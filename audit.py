@@ -5,6 +5,7 @@ import re
 import glob
 import argparse
 import configparser
+import packaging.version
 
 
 # Regex to ignore commented lines
@@ -23,6 +24,8 @@ def print_audit_results(results: [dict]):
             print("Issue: " + result['name'])
             print("Severity: " + result['severity'])
             print("Resolution: " + result['message'])
+            if "fixedin" in result:
+                print("Fixed in Version: " + str(result['fixedin']))
             print("Affected Files:")
             for file in result['affected_files']:
                 print("  " + file)
@@ -31,10 +34,11 @@ def print_audit_results(results: [dict]):
 
 # Takes in each audit spec, and search for the regex in each file, and
 # if found adds the file to a list of files affected by the given audit
-def audit(auditspec: os.PathLike, targetdir: os.PathLike) -> dict:
+def audit(auditspec: os.PathLike, target_dir: os.PathLike,
+          target_ver: str) -> dict:
     # Walk the target directory and gather all the files into single paths
-    targetfiles = [os.path.join(r, file)
-                   for r, d, f in os.walk(targetdir) for file in f]
+    target_files = [os.path.join(r, file)
+                    for r, d, f in os.walk(target_dir) for file in f]
 
     # Create INI config parser, used because it's easier
     config = configparser.ConfigParser()
@@ -63,6 +67,7 @@ def audit(auditspec: os.PathLike, targetdir: os.PathLike) -> dict:
         # With a single regex, just prepend the ignoring of comments
         finalregex = regex_ignore_comment + auditconfig['regex'].strip('"')
 
+    # Finally compile the regex, ignorecase and multiline for good measure
     regex = re.compile(pattern=finalregex, flags=re.IGNORECASE + re.MULTILINE)
 
     # Gather up the other fields
@@ -74,9 +79,22 @@ def audit(auditspec: os.PathLike, targetdir: os.PathLike) -> dict:
         "affected_files": [],
     }
 
+    # If there's a version that it's fixed in, check whether or not we use it
+    if "fixedin" in auditconfig:
+        # Parse in our version, using packaging.version for convenience
+        fixedin_ver = packaging.version.parse(
+            auditconfig["fixedin"].strip('"'))
+        target_ver = packaging.version.parse(target_ver)
+        # Set this in either case
+        auditresults["fixedin"] = fixedin_ver
+        # If it's fixed in the version we're testing against, just return
+        # with auditresults["affected_files"] == []
+        if target_ver >= fixedin_ver:
+            return auditresults
+
     # Iterate over all the files in the target directory, and
     # add any affected files to the affected_files array
-    for file in targetfiles:
+    for file in target_files:
         # With to ensure it's closed properly
         with open(file=file, mode='r') as openfile:
             # Read file into memory and search it all for regex
@@ -93,9 +111,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "target", help="Target directory containing files to audit")
+    parser.add_argument(
+        "-v", "--version", help="Target version of OpenShift to check against")
     args = parser.parse_args()
 
-    targetdir = args.target
+    target_dir = args.target
+    target_ver = args.version
     auditdir = os.path.join(os.path.dirname(
         os.path.abspath(__file__)), "audits/")
     # Get all audit files by the .audit extension
@@ -105,8 +126,10 @@ def main():
     all_audit_results = []
     # Run over each .audit file
     for auditfile in auditfiles:
-        # Add audit results to array, pass the audit file to the audit routine
-        all_audit_results.append(audit(auditfile, targetdir))
+        # Pass the audit file to the routine
+        all_audit_results.append(
+            audit(auditspec=auditfile, target_dir=target_dir,
+                  target_ver=target_ver))
 
     # Pass on all results for printing
     print_audit_results(all_audit_results)
