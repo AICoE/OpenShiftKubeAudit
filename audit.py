@@ -32,13 +32,27 @@ def print_audit_results(results: [dict]):
             print()
 
 
+# Walks the directories and returns a list of files that match a given "type"
+# extension
+def walk_directories(target_dir: os.PathLike, type: str) -> [os.PathLike]:
+    target_files = []
+    # Walk the target directory
+    for r, d, f in os.walk(target_dir):
+        # Iterate over files to join them to form full paths
+        for file in f:
+            # Split off the extension, check against the type
+            if os.path.splitext(file)[-1].lower() == "." + type:
+                # If the type matches, add it to the target files array
+                target_files.append(os.path.join(r, file))
+    return target_files
+
+
 # Takes in each audit spec, and search for the regex in each file, and
 # if found adds the file to a list of files affected by the given audit
 def audit(auditspec: os.PathLike, target_dir: os.PathLike,
-          target_ver: str) -> dict:
+          target_ver: str, type: str) -> dict:
     # Walk the target directory and gather all the files into single paths
-    target_files = [os.path.join(r, file)
-                    for r, d, f in os.walk(target_dir) for file in f]
+    target_files = walk_directories(target_dir=target_dir, type=type)
 
     # Create INI config parser, used because it's easier
     config = configparser.ConfigParser()
@@ -79,18 +93,20 @@ def audit(auditspec: os.PathLike, target_dir: os.PathLike,
         "affected_files": [],
     }
 
-    # If there's a version that it's fixed in, check whether or not we use it
-    if "fixedin" in auditconfig:
-        # Parse in our version, using packaging.version for convenience
-        fixedin_ver = packaging.version.parse(
-            auditconfig["fixedin"].strip('"'))
-        target_ver = packaging.version.parse(target_ver)
-        # Set this in either case
-        auditresults["fixedin"] = fixedin_ver
-        # If it's fixed in the version we're testing against, just return
-        # with auditresults["affected_files"] == []
-        if target_ver >= fixedin_ver:
-            return auditresults
+    # If we set target_ver, check it, otherwise skip
+    if target_ver:
+        # If there's a version that it's fixed in, check whether or not we use it
+        if "fixedin" in auditconfig:
+            # Parse in our version, using packaging.version for convenience
+            fixedin_ver = packaging.version.parse(
+                auditconfig["fixedin"].strip('"'))
+            target_ver = packaging.version.parse(target_ver)
+            # Set this in either case
+            auditresults["fixedin"] = fixedin_ver
+            # If it's fixed in the version we're testing against, just return
+            # with auditresults["affected_files"] == []
+            if target_ver >= fixedin_ver:
+                return auditresults
 
     # Iterate over all the files in the target directory, and
     # add any affected files to the affected_files array
@@ -113,23 +129,36 @@ def main():
         "target", help="Target directory containing files to audit")
     parser.add_argument(
         "-v", "--version", help="Target version of OpenShift to check against")
+    parser.add_argument(
+        "-t", "--type", help="Type of audit to perform: yaml, go, helm. \
+        Currently OpenShift manifests (yaml) are the only supported type")
     args = parser.parse_args()
 
     target_dir = args.target
     target_ver = args.version
-    auditdir = os.path.join(os.path.dirname(
-        os.path.abspath(__file__)), "audits/")
+    type = args.type
+
+    if type:
+        pass
+    else:
+        type = "yaml"
+
+    # Auditdir will be audits/filetype
+    audit_dir = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), "audits/", type)
+
     # Get all audit files by the .audit extension
-    auditfiles = glob.glob(pathname=auditdir + "*.audit", recursive=True)
+    audit_files = glob.glob(pathname=os.path.join(
+        audit_dir, "*.audit"), recursive=True)
 
     # Collector for all the audit results
     all_audit_results = []
     # Run over each .audit file
-    for auditfile in auditfiles:
+    for audit_file in audit_files:
         # Pass the audit file to the routine
         all_audit_results.append(
-            audit(auditspec=auditfile, target_dir=target_dir,
-                  target_ver=target_ver))
+            audit(auditspec=audit_file, target_dir=target_dir,
+                  target_ver=target_ver, type=type))
 
     # Pass on all results for printing
     print_audit_results(all_audit_results)
