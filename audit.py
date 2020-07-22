@@ -85,7 +85,6 @@ def audit(auditspec: os.PathLike, target_dir: os.PathLike,
     regex = re.compile(pattern=finalregex, flags=re.IGNORECASE + re.MULTILINE)
 
     # Gather up the other fields
-    # TODO(spryor): add check for unpopulated fields?
     auditresults = {
         "name": auditconfig['name'].strip('"'),
         "severity": auditconfig['severity'].strip('"'),
@@ -95,7 +94,8 @@ def audit(auditspec: os.PathLike, target_dir: os.PathLike,
 
     # If we set target_ver, check it, otherwise skip
     if target_ver:
-        # If there's a version that it's fixed in, check whether or not we use it
+        # If there's a version that it's fixed in, check whether or not we
+        # specified a target version
         if "fixedin" in auditconfig:
             # Parse in our version, using packaging.version for convenience
             fixedin_ver = packaging.version.parse(
@@ -106,6 +106,7 @@ def audit(auditspec: os.PathLike, target_dir: os.PathLike,
             # If it's fixed in the version we're testing against, just return
             # with auditresults["affected_files"] == []
             if target_ver >= fixedin_ver:
+                # Return the blank affected_files, since that will get skipped
                 return auditresults
 
     # Iterate over all the files in the target directory, and
