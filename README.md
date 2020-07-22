@@ -14,7 +14,7 @@ import packaging.version
 
 Usage:
 ```
-usage: audit.py [-h] [-v VERSION] target
+usage: audit.py [-h] [-v VERSION] [-t TYPE] target
 
 positional arguments:
   target                Target directory containing files to audit
@@ -23,5 +23,5 @@ optional arguments:
   -h, --help            show this help message and exit
   -v VERSION, --version VERSION
                         Target version of OpenShift to check against
-
+  -t TYPE, --type TYPE  Type of audit to perform: yaml, go, helm. Currently OpenShift manifests (yaml) are the only supported type
 ```
