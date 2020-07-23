@@ -6,7 +6,7 @@ name="NetworkPolicy has an IPBlock"
 # commented lines
 regex=""
 # Severity to help the user prioritize fixes
-severity="Unimportant"
+severity="2 - Medium"
 # Message to output to the user, usually a resolution or more information
 message="The Kubernetes v1 NetworkPolicy features are available in OpenShift Container Platform except for egress policy types and IPBlock."
 
@@ -15,5 +15,5 @@ message="The Kubernetes v1 NetworkPolicy features are available in OpenShift Con
 # they appear and will automatically ignore comments. Any number of regexes
 # can be added this way
 [regexes]
-regex1 = "NetworkPolicy"
+regex1 = "kind:\s*NetworkPolicy"
 regex2 = "ipBlock"

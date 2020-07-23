@@ -5,7 +5,8 @@ name = ""
 # Python-compatible regex to search for. The script automatically ignores
 # commented lines
 regex = ""
-# Severity to help the user prioritize fixes
+# Severity to help the user prioritize fixes, format of number - words
+# Numbers in descending level of severity, like 1 - High, 2 - Medium
 severity = ""
 # Message to output to the user, usually a resolution or more information
 message = ""

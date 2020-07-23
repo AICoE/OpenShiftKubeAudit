@@ -19,7 +19,7 @@ regex_gap = ".*(\\n.*)*"
 def print_audit_results(results: [dict]):
     print("Audit Results:")
     print()
-    for result in results:
+    for result in sorted(results, key=lambda k: k['severity']):
         if result['affected_files'] != []:
             print("Issue: " + result['name'])
             print("Severity: " + result['severity'])
@@ -81,8 +81,8 @@ def audit(auditspec: os.PathLike, target_dir: os.PathLike,
         # With a single regex, just prepend the ignoring of comments
         finalregex = regex_ignore_comment + auditconfig['regex'].strip('"')
 
-    # Finally compile the regex, ignorecase and multiline for good measure
-    regex = re.compile(pattern=finalregex, flags=re.IGNORECASE + re.MULTILINE)
+    # Finally compile the regex, multiline for good measure
+    regex = re.compile(pattern=finalregex, flags=re.MULTILINE)
 
     # Gather up the other fields
     auditresults = {
