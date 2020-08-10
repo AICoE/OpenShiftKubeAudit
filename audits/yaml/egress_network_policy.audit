@@ -2,18 +2,14 @@
 [Default]
 # The name/title of the issue, eg: "Pod Security Policies in manifests"
 name="Egress network policy set"
-# Python-compatible regex to search for. The script automatically ignores
-# commented lines
-regex=""
 # Severity to help the user prioritize fixes
 severity="2 - Medium"
 # Message to output to the user, usually a resolution or more information
 message="The Kubernetes v1 NetworkPolicy features are available in OpenShift Container Platform except for egress policy types and IPBlock."
 
-# If regex is left blank (regex = ""), this section can be used to construct
-# a proper regex for the files. Each regex is searched for in the order
-# they appear and will automatically ignore comments. Any number of regexes
-# can be added this way
+# This section can be used to construct a multiline regex for the files.
+# Each regex is searched for in the order they appear and will automatically
+# ignore comments. Any number of regexes can be added this way
 [regexes]
 regex1 = "kind:\s*NetworkPolicy"
 regex2 = "egress:"
