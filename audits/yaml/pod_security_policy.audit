@@ -1,11 +1,11 @@
 # INI syntax, because it's easier to parse
 [Default]
 # The name/title of the issue, eg: "Pod Security Policies in manifests"
-name = "Pod Security Policies in manifests"
+name = Pod Security Policies in manifests
 # Python-compatible regex to search for. The script automatically ignores
 # commented lines
-regex = "PodSecurityPolicy"
+regex = PodSecurityPolicy
 # Severity to help the user prioritize fixes
-severity = "1 - High"
+severity = 1 - High
 # Message to output to the user, usually a resolution or more information
-message = "In OpenShift PodSecurityPolicies are replaced by SecurityContextConstraints. See https://docs.openshift.com/container-platform/4.5/authentication/managing-security-context-constraints.html"
+message = In OpenShift PodSecurityPolicies are replaced by SecurityContextConstraints. See https://docs.openshift.com/container-platform/4.5/authentication/managing-security-context-constraints.html

@@ -1,0 +1,11 @@
+# INI syntax, because it's easier to parse
+[Default]
+# The name/title of the issue, eg: "Pod Security Policies in manifests"
+name = RunAsGroup is set, has some known issues
+# A jq-syntax query to be applied to the yaml files. The query must return
+# either True or False, but can be otherwise any valid jq string
+query = ((.. | .runAsGroup? | numbers) != 0) and ((.. | .runAsGroup? | numbers) < 10000000 or (.. | .runAsGroup? | numbers) > 20000000)
+# Severity to help the user prioritize fixes
+severity = 4 - Warning
+# Message to output to the user, usually a resolution or more information
+message = Setting runAsGroup outside of the expected range in OpenShift has known incompatibilities

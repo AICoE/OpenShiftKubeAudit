@@ -1,3 +1,5 @@
-argparse
-configparser
-packaging
+configparser==5.0.0
+jq==1.0.2
+packaging==20.4
+pyparsing==2.4.7
+PyYAML==5.3.1
