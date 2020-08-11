@@ -2,12 +2,10 @@
 [Default]
 # The name/title of the issue, eg: "Pod Security Policies in manifests"
 name = "FsGroup is set, has some known issues"
-# Python-compatible regex to search for. The script automatically ignores
-# commented lines
-regex = "fsGroup:"
+# A jq-syntax query to be applied to the yaml files. The query must return
+# either True or False, but can be otherwise any valid jq string
+query = ((.. | .fsGroup? | numbers) == 0)
 # Severity to help the user prioritize fixes
-severity = "4 - Warning"
+severity = 4 - Warning
 # Message to output to the user, usually a resolution or more information
-message = "Setting fsGroup outside of the expected range in OpenShift has known incompatibilities"
-# An optional number detailing a release known to fix the issue
-fixedin = ""
+message = "Setting fsGroup explicitly to 0 has some known issues"
