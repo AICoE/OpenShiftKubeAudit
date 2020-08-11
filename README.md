@@ -4,13 +4,17 @@ The tool searches the directory for specified issue regexes and prints out a sum
 
 Requires the following python imports:
 ```
+import jq
 import os
 import re
 import glob
+import yaml
 import argparse
 import configparser
 import packaging.version
 ```
+
+These are also provided as a requirements.txt for virtualenv creation
 
 Usage:
 ```
